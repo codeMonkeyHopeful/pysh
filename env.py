@@ -91,4 +91,11 @@ class Env:
           - re.sub() with a function as the replacement
         """
         # TODO: implement variable expansion
-        return value
+
+        import re
+
+        def replace(match):
+            key = match.group(1) or match.group(2)
+            return self._env.get(key, "")
+
+        return re.sub(r"\$\{(\w+)\}|\$(\w+)", replace, value)
