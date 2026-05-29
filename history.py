@@ -104,6 +104,8 @@ class History:
         Also clear readline's history with readline.clear_history().
         """
         # TODO: clear self._entries and readline history
+        self._entries = []
+        readline.clear_history()
         pass
 
     def save_to_file(self) -> None:
