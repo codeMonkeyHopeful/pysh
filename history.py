@@ -21,7 +21,6 @@ import os
 import readline
 import atexit
 
-
 HISTORY_FILE = os.path.expanduser("~/.pysh_history")
 MAX_HISTORY = 1000
 
@@ -53,6 +52,17 @@ class History:
         since the file won't exist on first run.
         """
         # TODO: load history file, set history length, register atexit save
+
+        if os.path.exists(HISTORY_FILE):
+            readline.read_history_file(HISTORY_FILE)
+            readline.set_history_length(MAX_HISTORY)
+            self._entries = readline.get_history_item(
+                1, readline.get_current_history_length() + 1
+            )
+        readline.set_history_length(MAX_HISTORY)
+
+        atexit.register(self.save_to_file)
+
         pass
 
     def add(self, command: str) -> None:
@@ -70,6 +80,14 @@ class History:
         Hint: check self._entries[-1] if len(self._entries) > 0
         """
         # TODO: implement add
+
+        if (
+            command
+            and (not self._entries or command != self._entries[-1])
+            and len(command.strip()) > 0
+        ):
+            self._entries.append(command)
+            readline.add_history(command)
         pass
 
     def get_all(self) -> list[str]:
