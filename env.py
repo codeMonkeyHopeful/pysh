@@ -40,6 +40,8 @@ class Env:
         Also update os.environ so subprocesses inherit it.
         """
         # TODO: set in self._env and os.environ
+        self._env[key] = value
+        os.environ[key] = value
         pass
 
     def unset(self, key: str) -> None:
@@ -49,6 +51,8 @@ class Env:
         Handle the case where key doesn't exist.
         """
         # TODO: remove from self._env and os.environ (use .pop with default)
+        self._env.pop(key, None)
+        os.environ.pop(key, None)
         pass
 
     def get_env(self) -> dict[str, str]:
