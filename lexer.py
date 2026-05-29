@@ -39,12 +39,12 @@ class Token:
     """
 
     # Token types
-    WORD = "WORD"               # a regular word or argument
-    PIPE = "PIPE"               # |
-    REDIRECT_OUT = "REDIRECT_OUT"   # >
+    WORD = "WORD"  # a regular word or argument
+    PIPE = "PIPE"  # |
+    REDIRECT_OUT = "REDIRECT_OUT"  # >
     REDIRECT_APPEND = "REDIRECT_APPEND"  # >>
-    REDIRECT_IN = "REDIRECT_IN"     # <
-    SEMICOLON = "SEMICOLON"     # ; (run commands sequentially)
+    REDIRECT_IN = "REDIRECT_IN"  # <
+    SEMICOLON = "SEMICOLON"  # ; (run commands sequentially)
 
     def __init__(self, type: str, value: str):
         self.type = type
@@ -56,6 +56,8 @@ class Token:
 
 class Lexer:
     def tokenize(self, raw_input: str) -> list[Token]:
+        import shlex
+
         """
         Takes a raw input string and returns a list of Token objects.
 
@@ -80,4 +82,28 @@ class Lexer:
         #   import shlex
         #   parts = shlex.split(raw_input)  # handles quotes for you
         #   then walk parts and classify each as a Token
-        return []
+
+        if len(raw_input.strip()) == 0:
+            return []
+
+        try:
+            parts = shlex.split(raw_input)
+        except ValueError:
+            # Handle unclosed quotes gracefully
+            return []
+
+        tokens = []
+        for part in parts:
+            if part == "|":
+                tokens.append(Token(Token.PIPE, part))
+            elif part == ">":
+                tokens.append(Token(Token.REDIRECT_OUT, part))
+            elif part == ">>":
+                tokens.append(Token(Token.REDIRECT_APPEND, part))
+            elif part == "<":
+                tokens.append(Token(Token.REDIRECT_IN, part))
+            elif part == ";":
+                tokens.append(Token(Token.SEMICOLON, part))
+            else:
+                tokens.append(Token(Token.WORD, part))
+        return tokens
