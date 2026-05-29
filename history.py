@@ -28,6 +28,7 @@ MAX_HISTORY = 1000
 class History:
     def __init__(self):
         self._entries: list[str] = []
+        readline.clear_history()  # important for test isolation
         self._setup_readline()
 
     def _setup_readline(self):
@@ -53,14 +54,13 @@ class History:
         """
         # TODO: load history file, set history length, register atexit save
 
-        if os.path.exists(HISTORY_FILE):
-            readline.read_history_file(HISTORY_FILE)
-            readline.set_history_length(MAX_HISTORY)
-            self._entries = readline.get_history_item(
-                1, readline.get_current_history_length() + 1
-            )
-        readline.set_history_length(MAX_HISTORY)
+        try:
+            if os.path.exists(HISTORY_FILE):
+                readline.read_history_file(HISTORY_FILE)
+        except FileNotFoundError:
+            pass
 
+        readline.set_history_length(MAX_HISTORY)
         atexit.register(self.save_to_file)
 
         pass
@@ -80,14 +80,16 @@ class History:
         Hint: check self._entries[-1] if len(self._entries) > 0
         """
         # TODO: implement add
+        command = command.strip()
 
-        if (
-            command
-            and (not self._entries or command != self._entries[-1])
-            and len(command.strip()) > 0
-        ):
-            self._entries.append(command)
-            readline.add_history(command)
+        if not command:
+            return
+
+        if self._entries and self._entries[-1] == command:
+            return
+
+        self._entries.append(command)
+        readline.add_history(command)
         pass
 
     def get_all(self) -> list[str]:
@@ -96,6 +98,8 @@ class History:
 
     def get_last(self, n: int) -> list[str]:
         """Return the last n history entries."""
+        if n <= 0:
+            return []
         return self._entries[-n:]
 
     def clear(self) -> None:
@@ -104,7 +108,7 @@ class History:
         Also clear readline's history with readline.clear_history().
         """
         # TODO: clear self._entries and readline history
-        self._entries = []
+        self._entries.clear()
         readline.clear_history()
         pass
 
@@ -118,7 +122,10 @@ class History:
         Wrap in try/except in case the file isn't writable.
         """
         # TODO: save history file
-        pass
+        try:
+            readline.write_history_file(HISTORY_FILE)
+        except Exception:
+            pass
 
     def __len__(self) -> int:
         return len(self._entries)
