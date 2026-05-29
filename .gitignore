@@ -1,0 +1,36 @@
+# virtual environment
+.venv
+venv
+env
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# env files
+.env
+.env.*
+
+# editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# pysh specific
+~/.pysh_history
